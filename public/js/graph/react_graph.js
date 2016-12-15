@@ -1,7 +1,6 @@
 import * as tooltip from 'es6!graph/tooltip';
-import {Description} from 'es6!common/react_modal';
-import * as ReactModal from 'vendor/react-modal';
-
+import {Modal} from 'es6!common/react_modal';
+import {ExportModal} from 'es6!common/export/export';
 
 /**
  * Search for target node in list of nodes,
@@ -159,9 +158,7 @@ var Graph = React.createClass({
             horizontalPanFactor: 0,
             verticalPanFactor: 0,
             mouseDown: false,
-            modalIsOpen: false,
-            courseId: 'csc108H1'
-            };
+            };   
     },
 
     componentDidMount: function () {
@@ -304,15 +301,7 @@ var Graph = React.createClass({
             $('#fcecount').text('FCE Count: ' + this.state.fceCount);
         });
     },
-     openModal: function () {  
-        var infoBox = this.refs.infoBox
-        this.setState({modalIsOpen: true, courseId: infoBox.state.nodeId.substring(0, 6)});
 
-    },
-
-    closeModal: function() {
-        this.setState({modalIsOpen: false});
-    },
     nodeClick: function (event) {
         var courseId = event.currentTarget.id;
         var currentNode = this.refs.nodes.refs[courseId];
@@ -388,10 +377,16 @@ var Graph = React.createClass({
     },
 
     infoBoxMouseClick: function () {
-        var infoBox = this.refs.infoBox;
-        this.openModal();
+        var infoBox = this.refs.infoBox
+        var newCourse = infoBox.state.nodeId.substring(0, 6)
+        var modal = this.refs.modal
+        this.setState({courseId: newCourse});
+        modal.openModal(newCourse);
     },
-
+    openExportModal: function() {
+        var exportModal = this.refs.exportModal
+        exportModal.openModal();
+    },
     // Reset graph
     reset: function () {
         this.setFCECount(0);
@@ -554,17 +549,8 @@ var Graph = React.createClass({
                             this.state.verticalPanFactor == 0;
         return (
             <div>
-                <ReactModal className='ModalClass'
-                    overlayClassName='OverlayClass'
-                    isOpen={this.state.modalIsOpen}
-                    onRequestClose={this.closeModal}>
-                    <div className='modal-header'>
-                         {getCourseTitle(this.state.courseId)} </div>
-                        <div className='modal-body'>
-                            <Description course = {formatCourseName(this.state.courseId)[0]}/>  
-                        </div>  
-                </ReactModal>
-
+                <Modal ref = 'modal'/>
+                <ExportModal context = "graph" session = "" ref = 'exportModal'/>
                 <Button
                     divId='zoom-in-button'
                     text='+'
@@ -637,8 +623,6 @@ var Graph = React.createClass({
                         onMouseEnter={this.infoBoxMouseEnter}
                         onMouseLeave={this.infoBoxMouseLeave}/>
                 </svg>
-                 
-                <button onClick = {this.openModal}> Open Modal</button>
             </div>
 
         );
